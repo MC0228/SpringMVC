@@ -1,0 +1,4 @@
+# Project exclude paths
+/out/
+/springmvc-01-servlet/target/
+/springmvc-02-init/target/
