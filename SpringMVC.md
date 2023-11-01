@@ -224,4 +224,81 @@ public class HelloController {
 
 - 处理器映射器、处理器适配器、视图解析器
 
-通常，我们只需要手动配置视图解析器，而处理器映射器和处理器适配器只需要开启注解驱动即可，而省去了大段的xml配置
+通常，我们只需要手动配置视图解析器，而处理器映射器和处理器适配器只需要开启注解驱动即可，而省去了大段的xml配置、
+
+## 4.Controller和RESTFul
+
+**解决乱码问题**
+
+- 方法一：
+
+自定义过滤器类
+
+```java
+package com.shisan.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+ * @Author:shisan
+ * @Date:2023/11/1 20:00
+ */
+@Controller
+@RequestMapping("/test")
+public class EncodingController {
+
+    @PostMapping("/t1")
+    public String test1(String name, Model model) {
+        System.out.println(name);
+        model.addAttribute("msg", name);
+        return "result";
+    }
+}
+
+```
+
+在web.xml中添加配置
+
+```xml
+
+<filter>
+    <filter-name>encoding</filter-name>
+    <filter-class>com.shisan.filter.EncodingFilter</filter-class>
+</filter>
+<filter-mapping>
+<filter-name>encoding</filter-name>
+<url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+
+- 方法二：使用框架中配置字符集编码的过滤器
+
+```xml
+
+<filter>
+    <filter-name>encoding</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+        <param-name>encoding</param-name>
+        <param-value>utf-8</param-value>
+    </init-param>
+</filter>
+<filter-mapping>
+<filter-name>encoding</filter-name>
+<url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+
+
+
+
+
+
+
+
+
+
+
