@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!--自动扫面包，指定包下的注解生效，有IOC统一管理-->
+    <context:component-scan base-package="com.shisan.controller"/>
+
+    <!--
+    让springmvc不处理静态资源
+        <bean id="/hello" class="com.shiasan.controller.HelloController"/>
+    -->
+    <mvc:default-servlet-handler/>
+    <!--
+        支持mvc注解驱动
+        在spring种一百采用@RequsetMapping注解来完成映射关系
+        必须向上下文中注册DefaultAnnotationHandlerMapping
+        这个两个实例分别在类级别和方法级别处理
+        而annotation-driven配置帮助我们完成两个实力的注入
+        相当于
+        添加映射器
+    <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+        添加适配器
+    <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
+
+    -->
+    <mvc:annotation-driven/>
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+</beans>
