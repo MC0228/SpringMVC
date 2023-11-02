@@ -13,6 +13,7 @@
         <module>springmvc-02-init</module>
         <module>springmvc-03-annotation</module>
         <module>springmvc-04-controller</module>
+        <module>springmvc-05-ssm</module>
     </modules>
 
     <properties>
@@ -32,7 +33,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>5.3.9</version>
+            <version>5.1.8.RELEASE</version>
         </dependency>
 
         <dependency>

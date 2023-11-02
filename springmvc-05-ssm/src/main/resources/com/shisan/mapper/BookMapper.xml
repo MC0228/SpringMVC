@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shisan.mapper.BookMapper">
+
+    <insert id="add" parameterType="Books">
+        insert into books (bookName, bookCounts, detalil)
+        values (#{bookName}, #{bookCounts}, #{detail})
+    </insert>
+    <update id="update" parameterType="Books">
+        update books
+        <set>
+            bookName=#{bookName},
+            bookCounts=#{bookCounts},
+            detail = #{detail}
+        </set>
+        where bookID = #{bookID}
+    </update>
+    <delete id="delete" parameterType="integer">
+        delete
+        from books
+        where bookID = #{bookID}
+    </delete>
+    <select id="selectById" resultType="Books">
+        select *
+        from books
+        where bookID = #{bookID}
+    </select>
+    <select id="findAll" resultType="Books">
+
+        select *
+        from books;
+    </select>
+
+
+</mapper>
