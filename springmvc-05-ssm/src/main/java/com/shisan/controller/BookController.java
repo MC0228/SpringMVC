@@ -31,19 +31,19 @@ public class BookController {
         return "findAll"; // 视图名称可以是 "findAll"，前提是你的视图解析器配置正确
     }
 
-    @PostMapping("/add")
+    @PutMapping("/add")
     public String add(@ModelAttribute("book") Books book) {
         bookService.add(book);
         return "redirect:/book/findAll"; // 重定向到显示所有图书的页面
     }
 
-    @PutMapping("/update")
+    @PostMapping("/update")
     public String update(@ModelAttribute("book") Books book) {
         bookService.update(book);
         return "redirect:/book/findAll"; // 重定向到显示所有图书的页面
     }
 
-    @GetMapping("/edit/{bookID}")
+    @GetMapping("/update/{bookID}")
     public String edit(@PathVariable("bookID") Integer bookID, Model model) {
         Books book = bookService.selectById(bookID);
         model.addAttribute("book", book);

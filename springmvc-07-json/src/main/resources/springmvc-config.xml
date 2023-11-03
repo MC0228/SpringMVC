@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com.shisan.controller"/>
+        <mvc:annotation-driven>
+            <mvc:message-converters register-defaults="true">
+                <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                    <constructor-arg value="UTF-8"/>
+                </bean>
+                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                    <property name="objectMapper">
+                        <bean class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
+                            <property name="failOnEmptyBeans" value="false"/>
+                        </bean>
+                    </property>
+                </bean>
+            </mvc:message-converters>
+        </mvc:annotation-driven>
+
+    <!--    <mvc:interceptors>-->
+    <!--        <mvc:interceptor>-->
+    <!--            <mvc:mapping path="/**"/> &lt;!&ndash; 这里可以设置拦截的URL模式 &ndash;&gt;-->
+    <!--            <bean class="com.shisan.interceptor.CharacterEncodingInterceptor"/>-->
+    <!--        </mvc:interceptor>-->
+    <!--    </mvc:interceptors>-->
+<!--    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">-->
+<!--        <property name="messageConverters">-->
+<!--            <list>-->
+<!--                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">-->
+<!--                    <property name="supportedMediaTypes">-->
+<!--                        <list>-->
+<!--                            <value>application/json;charset=UTF-8</value>-->
+<!--                        </list>-->
+<!--                    </property>-->
+<!--                </bean>-->
+<!--            </list>-->
+<!--        </property>-->
+<!--    </bean>-->
+
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+</beans>
