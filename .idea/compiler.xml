@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="springmvc-05-ssm" />
         <module name="springmvc-07-json" />
+        <module name="springmvc-06-ajax" />
         <module name="springmvc-03-annotation" />
         <module name="springmvc-02-init" />
         <module name="springmvc-04-controller" />
