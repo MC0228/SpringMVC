@@ -26,16 +26,25 @@ public class UserController {
         return "login";
     }
 
+    // 在登陆完成之后跳转到首页
     @RequestMapping("/login")
     public String login(HttpSession session, String username, String password, Model model) {
+        // 把用户信息存入到session中
         session.setAttribute("username", username);
         model.addAttribute("username", username);
         return "main";
     }
 
+    // 退出登陆之后，注销掉
     @RequestMapping("/goOut")
     public String goOut(HttpSession session) {
+        // 从session中注销掉username
         session.removeAttribute("username");
-        return "redirect:/index.jsp";
+        // 然后重定向到index页面
+//        return "redirect:/index.jsp";
+        return "forward:/index.jsp";
+
     }
+
+
 }

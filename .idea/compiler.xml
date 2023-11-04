@@ -7,19 +7,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="springmvc-09-file" />
         <module name="springmvc-05-ssm" />
         <module name="springmvc-08-interceptor" />
+        <module name="springmvc-07-json" />
         <module name="springmvc-06-ajax" />
         <module name="springmvc-03-annotation" />
         <module name="springmvc-02-init" />
         <module name="springmvc-04-controller" />
         <module name="springmvc-01-servlet" />
-      </profile>
-      <profile name="Annotation profile for SpringMCV" enabled="true">
-        <sourceOutputDir name="../springmvc-08-interceptor/target/generated-sources/annotations" />
-        <sourceTestOutputDir name="../springmvc-08-interceptor/target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="springmvc-07-json" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

@@ -929,6 +929,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 - 在springmvc的配置文件中注册拦截器
 
 ```xml
+
 <mvc:interceptors>
     <mvc:interceptor>
         <mvc:mapping path="/user/**/"/>
@@ -936,5 +937,225 @@ public class LoginInterceptor implements HandlerInterceptor {
     </mvc:interceptor>
 </mvc:interceptors>
 ```
+
+## 7.文件上传和下载
+
+**7.1文件上传**
+
+- 导入maven依赖
+
+```xml
+
+<dependencies>
+    <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+        <version>1.4</version>
+    </dependency>
+    <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>4.0.1</version>
+    </dependency>
+</dependencies>
+```
+
+- 配置multipartyResolve
+
+**【注意！！！这个bean的id必须为：multipartResolver ， 否则上传文件会报400的错误！在这里栽过坑,教训！】**
+
+```xml
+<!--文件上传配置-->
+<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    <!-- 请求的编码格式，必须和jSP的pageEncoding属性一致，以便正确读取表单的内容，默认为ISO-8859-1 -->
+    <property name="defaultEncoding" value="utf-8"/>
+    <!-- 上传文件大小上限，单位为字节（10485760=10M） -->
+    <property name="maxUploadSize" value="10485760"/>
+    <property name="maxInMemorySize" value="40960"/>
+</bean>
+```
+
+- upload.jsp
+
+```html
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>文件上传</title>
+    <script type="text/javascript">
+        function check() {
+            let name = document.getElementById("name").value;
+            let file = document.getElementById("file").value;
+            if (name == "") {
+                alert("请填写上传为");
+                return false;
+            }
+            if (file.length == 0 || file == "") {
+                alert("请选择上传的文件")
+                return false;
+            }
+            return true;
+        }
+    </script>
+</head>
+<body>
+<form action="${pageContext.request.contextPath}/file/upload"
+      method="post" enctype="multipart/form-data" onsubmit="return check()">
+    上传人：<input id="name" type="text" name="name"><br>
+    <%--多文件上传 multiple="multiple--%>
+    请选择文件: <input id="file" type="file" name="files" multiple="multiple"><br>
+    <input type="submit" value="上传">
+</form>
+</body>
+</html>
+```
+
+- FileController
+
+```java
+package com.shisan.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLEncoder;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * @Author:shisan
+ * @Date:2023/11/4 14:53
+ */
+@Controller
+@RequestMapping("/file")
+public class FileController {
+    @RequestMapping("/goUpload")
+    public String upload() {
+        return "upload";
+    }
+
+    @RequestMapping("/upload")
+    public String upload(String name, List<MultipartFile> files, HttpServletRequest request) {
+        // 判断上传文件是否存在
+        if (!files.isEmpty() && files.size() > 0) {
+            // 循环输出上传的文件
+            for (MultipartFile file : files) {
+                String originalFilename = file.getOriginalFilename();
+                String dirPath = request.getServletContext().getRealPath("/upload/");
+                File filePath = new File(dirPath);
+
+                if (!filePath.exists()) {
+                    filePath.mkdirs();
+                }
+
+                // 使用UUID重新命名上传的文件名称（上传人_原始文件名名称）
+                String newFileName = name + "_" + UUID.randomUUID() + "_" + originalFilename;
+                // 使用MultipartFile完成文件上传到指定位置
+                try {
+                    file.transferTo(new File(dirPath + newFileName));
+                    System.out.println(dirPath + newFileName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return "error";
+                }
+            }
+            return "success";
+        }
+        return "error";
+
+    }
+}
+```
+
+**7.2文件下载**
+
+- 文件下载步骤：
+
+    - 1.设置response响应头
+    - 2.读取文件-InputStream
+    - 3.写出文件-OutputStream
+    - 4.执行操作
+    - 5.关闭流
+
+- FileController
+
+```java
+package com.shisan.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLEncoder;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * @Author:shisan
+ * @Date:2023/11/4 14:53
+ */
+@Controller
+@RequestMapping("/file")
+public class FileController {
+    @RequestMapping("/goDownload")
+    public String download() {
+        return "download";
+    }
+
+    @RequestMapping("/download")
+    public String downloads(HttpServletResponse response, HttpServletRequest request) throws Exception {
+        //要下载的图片地址
+        String path = request.getServletContext().getRealPath("/upload");
+
+        String fileName = "01.jpg";
+        //1、设置response 响应头
+        response.reset(); //设置页面不缓存,清空buffer
+        response.setCharacterEncoding("UTF-8"); //字符编码
+        response.setContentType("multipart/form-data"); //二进制传输数据
+        //设置响应头
+        response.setHeader("Content-Disposition",
+                "attachment;fileName=" + URLEncoder.encode(fileName, "UTF-8"));
+        File file = new File(path, fileName);
+        //2、 读取文件--输入流
+        InputStream input = new FileInputStream(file);
+        //3、 写出文件--输出流
+        OutputStream out = response.getOutputStream();
+        byte[] buff = new byte[1024];
+        int index = 0;
+        //4、执行 写出操作
+        while ((index = input.read(buff)) != -1) {
+            out.write(buff, 0, index);
+            out.flush();
+        }
+        out.close();
+        input.close();
+        return "success";
+    }
+
+}
+```
+
+- download.jsp
+
+```html
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>文件的下载</title>
+</head>
+<body>
+<h1><a href="/upload/01.jpg">点击下载</a>
+</h1>
+</body>
+</html>
+```
+
 
 
