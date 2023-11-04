@@ -19,6 +19,7 @@
         <module>springmvc-05-ssm</module>
         <module>springmvc-06-ajax</module>
         <module>springmvc-07-json</module>
+        <module>springmvc-08-interceptor</module>
 
 
     </modules>

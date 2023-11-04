@@ -684,9 +684,257 @@ public class UserController {
 }
 ```
 
+## 6.拦截器
 
+**6.1概述**
+Springmvc的拦截器拦截雷士Servlet开发中的过滤器Filter，用于对处理器进行预处理和后处理 开发者可以自己定义一些拦截器来实现特定的功能
 
+_**注意**_:拦截器是AOP思想的具体应用
 
+_**过滤器**_
 
+- servlet规范中的一部分，任何java web工程都可以使用
+- 在url-pattern中配置了/*之后，可以对所有要访问的资源进行拦截
+
+_**拦截器**_
+
+- 拦截器是SpringMVC框架自己的，只有使用了SpringMVC框架的工程才能使用
+- 拦截器只会拦截访问的控制器方法， 如果访问的是jsp/html/css/image/js是不会进行拦截的
+
+**6.2自定义拦截器**
+
+- MyInterceptor
+
+```java
+package com.shisan.config;
+
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * @Author:shisan
+ * @Date:2023/11/3 19:32
+ */
+public class MyInterceptor implements HandlerInterceptor {
+
+    /**
+     * return false 不执行下一个拦截器
+     * return true 执行下一个拦截器
+     *
+     * @param request
+     * @param response
+     * @param handler
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        System.out.println("=======拦截前=========");
+        return HandlerInterceptor.super.preHandle(request, response, handler);
+    }
+
+    // 拦截日志
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        System.out.println("=======拦截后==========");
+        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
+    }
+
+    // 拦截日志
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        System.out.println("=======清理=========");
+        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
+    }
+}
+
+```
+
+- springmvc的配置文件中配置拦截器
+
+```xml
+<!--拦截器-->
+<mvc:interceptors>
+    <mvc:interceptor>
+        <mvc:mapping path="/**"/>
+        <bean class="com.shisan.config.MyInterceptor"/>
+    </mvc:interceptor>
+</mvc:interceptors>
+```
+
+- InterceptorController
+
+```java
+package com.shisan.controller;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * @Author:shisan
+ * @Date:2023/11/3 18:50
+ */
+@RestController
+public class InterceptorController {
+    @RequestMapping("/interceptor")
+    public String interceptor() {
+        System.out.println("初始化了拦截器");
+        return "Interceptor 拦截器";
+    }
+}
+```
+
+测试结果：
+![img_2.png](img_2.png)
+
+**6.3拦截器实现登录验证**
+
+- 思路
+
+    - 有一个UserController的访问页面
+    - 登录页面有一个提交表单的动作。需要在controller中国进行处理。判断用户密码是否正确。正确了向sessio中写入用户信息。跳转登陆成功页面。
+    - 拦截用户的请求，判断用户是否登录。如果用户登录，放行；如果用户未登录，跳转到登录页面
+
+- index.jsp
+
+```html
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>十三的测试页面</title>
+</head>
+<body>
+<h1>十三的网站</h1>
+<a href="${pageContext.request.contextPath}/user/jumpLogin">登录页面</a>
+<a href="${pageContext.request.contextPath}/user/main">首页</a>
+</body>
+</html>
+```
+
+- login.jsp
+
+```html
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>登录</title>
+</head>
+<body>
+<h1>登陆页面</h1>
+<form action="${pageContext.request.contextPath}/user/login" method="post">
+    用户名：<input type="text" name="username"><br>
+    密码：<input type="password" name="password"><br>
+    <input type="submit" value="提交">
+</form>
+</body>
+</html>
+
+```
+
+- main.jsp
+
+```html
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>首页</title>
+</head>
+<body>
+<h1>欢迎的登录:亲爱的${username}</h1>
+<p><a href="${pageContext.request.contextPath}/user/goOut">退出登录</a></p>
+</body>
+</html>
+```
+
+- UserController
+
+```java
+package com.shisan.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.servlet.http.HttpSession;
+
+/**
+ * @Author:shisan
+ * @Date:2023/11/4 9:55
+ */
+@Controller
+@RequestMapping("/user")
+public class UserController {
+
+    // 直接进入首页
+    @RequestMapping("/main")
+    public String main() {
+        return "main";
+    }
+
+    //跳转到登录页面
+    @RequestMapping("/jumpLogin")
+    public String jumpLogin() {
+        return "login";
+    }
+
+    @RequestMapping("/login")
+    public String login(HttpSession session, String username, String password, Model model) {
+        session.setAttribute("username", username);
+        model.addAttribute("username", username);
+        return "main";
+    }
+
+    @RequestMapping("/goOut")
+    public String goOut(HttpSession session) {
+        session.removeAttribute("username");
+        return "redirect:/index.jsp";
+    }
+}
+```
+
+- LoginInterceptor
+
+```java
+package com.shisan.config;
+
+import org.springframework.web.servlet.HandlerInterceptor;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+/**
+ * @Author:shisan
+ * @Date:2023/11/4 10:10
+ */
+public class LoginInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        HttpSession session = request.getSession();
+        if (session.getAttribute("username") != null) {
+            return true;
+        }
+        if (request.getRequestURI().contains("login")) {
+            return true;
+        }
+        request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response);
+        return HandlerInterceptor.super.preHandle(request, response, handler);
+    }
+}
+```
+
+- 在springmvc的配置文件中注册拦截器
+
+```xml
+<mvc:interceptors>
+    <mvc:interceptor>
+        <mvc:mapping path="/user/**/"/>
+        <bean class="com.shisan.config.LoginInterceptor"/>
+    </mvc:interceptor>
+</mvc:interceptors>
+```
 
 
